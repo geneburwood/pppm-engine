@@ -21,7 +21,7 @@ function buildRentTruth() {
   var leasesByUnit = {};
   for (var i = 0; i < leasesData.rows.length; i++) {
     var lease = leasesData.rows[i];
-    var unitId = String(lease['unitID'] || lease['unitId'] || lease['unit_id'] || '');
+    var unitId = String(lease['lease.unitID'] || lease['unitID'] || lease['unitId'] || lease['unit_id'] || '');
     if (!unitId) continue;
 
     if (!leasesByUnit[unitId]) {
@@ -34,21 +34,21 @@ function buildRentTruth() {
 
   for (var u = 0; u < unitsData.rows.length; u++) {
     var unit = unitsData.rows[u];
-    var unitId = String(unit['unitID'] || unit['unitId'] || unit['id'] || '');
-    var propertyId = String(unit['propertyID'] || unit['propertyId'] || unit['property_id'] || '');
-    var unitName = unit['name'] || unit['unitName'] || unit['unit_name'] || '';
-    var unitRent = parseFloat(unit['rent'] || unit['marketRent'] || unit['market_rent'] || 0);
+    var unitId = String(unit['unit.unitID'] || unit['unitID'] || unit['unitId'] || unit['id'] || '');
+    var propertyId = String(unit['unit.propertyID'] || unit['propertyID'] || unit['propertyId'] || unit['property_id'] || '');
+    var unitName = unit['unit.name'] || unit['name'] || unit['unitName'] || unit['unit_name'] || '';
+    var unitRent = parseFloat(unit['unit.rent'] || unit['rent'] || unit['marketRent'] || unit['market_rent'] || 0);
 
     // Find active lease for this unit
     var activeLease = findActiveLease(leasesByUnit[unitId] || [], today);
 
     var currentRent, rentSource, leaseId, leaseStart, leaseEnd;
     if (activeLease) {
-      currentRent = parseFloat(activeLease['rent'] || activeLease['unitRent'] || activeLease['unit_rent'] || 0);
+      currentRent = parseFloat(activeLease['unit.rent'] || activeLease['rent'] || activeLease['unitRent'] || activeLease['unit_rent'] || 0);
       rentSource = 'lease';
-      leaseId = activeLease['leaseID'] || activeLease['leaseId'] || activeLease['id'] || '';
-      leaseStart = activeLease['leaseStartDate'] || activeLease['startDate'] || activeLease['start_date'] || '';
-      leaseEnd = activeLease['leaseEndDate'] || activeLease['endDate'] || activeLease['end_date'] || '';
+      leaseId = activeLease['lease.leaseID'] || activeLease['leaseID'] || activeLease['leaseId'] || activeLease['id'] || '';
+      leaseStart = activeLease['lease.startDate'] || activeLease['leaseStartDate'] || activeLease['startDate'] || activeLease['start_date'] || '';
+      leaseEnd = activeLease['lease.endDate'] || activeLease['leaseEndDate'] || activeLease['endDate'] || activeLease['end_date'] || '';
     } else {
       currentRent = unitRent;
       rentSource = 'unit';
@@ -87,8 +87,8 @@ function findActiveLease(leases, asOfDate) {
 
   for (var i = 0; i < leases.length; i++) {
     var lease = leases[i];
-    var startRaw = lease['leaseStartDate'] || lease['startDate'] || lease['start_date'] || '';
-    var endRaw = lease['leaseEndDate'] || lease['endDate'] || lease['end_date'] || '';
+    var startRaw = lease['lease.startDate'] || lease['leaseStartDate'] || lease['startDate'] || lease['start_date'] || '';
+    var endRaw = lease['lease.endDate'] || lease['leaseEndDate'] || lease['endDate'] || lease['end_date'] || '';
 
     var startDate = parseDate(startRaw);
     var endDate = parseDate(endRaw);

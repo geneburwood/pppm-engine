@@ -56,12 +56,12 @@ function buildContactKeys() {
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
 
-      // Resolve field names — Rentvine API uses various naming conventions
-      var contactId = row['contactID'] || row['contactId'] || row['id'] || '';
-      var contactTypeId = row['contactTypeID'] || row['contactTypeId'] || '';
+      // Resolve field names — API Connector prefixes with "contact."
+      var contactId = row['contact.contactID'] || row['contactID'] || row['contactId'] || row['id'] || '';
+      var contactTypeId = row['contact.contactTypeID'] || row['contactTypeID'] || row['contactTypeId'] || '';
       var displayName = buildDisplayName(row);
-      var email = row['email'] || row['emailAddress'] || '';
-      var phone = row['phone'] || row['phoneNumber'] || row['mobilePhone'] || '';
+      var email = row['contact.email'] || row['email'] || row['emailAddress'] || '';
+      var phone = row['contact.phone'] || row['phone'] || row['phoneNumber'] || row['mobilePhone'] || '';
 
       var mergeKey = String(contactId) + '|' + String(contactTypeId);
 
@@ -88,16 +88,16 @@ function buildContactKeys() {
  * @returns {string} Combined display name.
  */
 function buildDisplayName(row) {
-  // Try pre-built display name first
-  var display = row['displayName'] || row['display_name'] || '';
+  // Try pre-built display/full name first (API Connector uses "contact." prefix)
+  var display = row['contact.name'] || row['displayName'] || row['display_name'] || row['name'] || '';
   if (display) return String(display);
 
   // Fall back to first + last
-  var first = row['firstName'] || row['first_name'] || '';
-  var last = row['lastName'] || row['last_name'] || '';
+  var first = row['contact.firstName'] || row['firstName'] || row['first_name'] || '';
+  var last = row['contact.lastName'] || row['lastName'] || row['last_name'] || '';
   var combined = (String(first) + ' ' + String(last)).trim();
   if (combined) return combined;
 
   // Last resort: company name
-  return row['companyName'] || row['company_name'] || '';
+  return row['contact.companyName'] || row['companyName'] || row['company_name'] || '';
 }

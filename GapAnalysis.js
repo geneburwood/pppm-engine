@@ -16,7 +16,7 @@ function buildGapAnalysis() {
   var propsById = {};
   for (var p = 0; p < propsData.rows.length; p++) {
     var prop = propsData.rows[p];
-    var propId = String(prop['propertyID'] || prop['propertyId'] || prop['id'] || '');
+    var propId = String(prop['property.propertyID'] || prop['propertyID'] || prop['propertyId'] || prop['id'] || '');
     if (propId) {
       propsById[propId] = prop;
     }
@@ -55,10 +55,10 @@ function buildGapAnalysis() {
     var unit = rentTruth[i];
     var prop = propsById[unit.property_id] || {};
 
-    var address = prop['address'] || prop['streetAddress'] || prop['street_address'] || '';
-    var city = prop['city'] || '';
-    var state = prop['state'] || '';
-    var zip = prop['zip'] || prop['zipCode'] || prop['zip_code'] || prop['postalCode'] || '';
+    var address = prop['property.address'] || prop['address'] || prop['streetAddress'] || prop['street_address'] || '';
+    var city = prop['property.city'] || prop['city'] || '';
+    var state = prop['property.stateID'] || prop['state'] || '';
+    var zip = prop['property.postalCode'] || prop['zip'] || prop['zipCode'] || prop['zip_code'] || prop['postalCode'] || '';
 
     // Market rent from RentCast AVM (if available)
     var avm = avmByUnit[unit.unit_id] || null;

@@ -22,11 +22,21 @@ function getSheetData(sheetName) {
   }
   var data = sheet.getRange(1, 1, lastRow, lastCol).getValues();
   var headers = data[0].map(function(h) { return String(h).trim(); });
+  var hasRefreshTime = (headers[0] === 'Refresh Time');
   var rows = [];
   for (var i = 1; i < data.length; i++) {
+    var rowData = data[i];
+
+    // API Connector leaves Refresh Time empty on merged rows, shifting data left.
+    // Detect: if first header is "Refresh Time" but first value is not a date
+    // and not empty, the row is shifted — re-align by inserting blank at position 0.
+    if (hasRefreshTime && !isDateValue(rowData[0]) && rowData[0] !== '' && rowData[0] !== null) {
+      rowData = [''].concat(rowData.slice(0, rowData.length - 1));
+    }
+
     var row = {};
     for (var j = 0; j < headers.length; j++) {
-      row[headers[j]] = data[i][j];
+      row[headers[j]] = rowData[j];
     }
     rows.push(row);
   }
@@ -114,4 +124,21 @@ function getSheetRowCount(sheetName) {
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return 0;
   return Math.max(0, sheet.getLastRow() - 1);
+}
+
+/**
+ * Checks if a value is a date — either a Date object or an ISO date string.
+ * Used to detect valid Refresh Time values vs shifted data.
+ * @param {any} val
+ * @returns {boolean}
+ */
+function isDateValue(val) {
+  if (val instanceof Date) return true;
+  if (typeof val === 'string' && val.length > 0) {
+    // Match ISO dates like "2026-02-16T21:52:06.527Z" or "2026-02-16"
+    if (/^\d{4}-\d{2}-\d{2}/.test(val)) return true;
+    // Match dates like "2/16/2026" or "02/16/2026 6:00:00"
+    if (/^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(val)) return true;
+  }
+  return false;
 }
